@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5c2216">
+<meta name="robots" content="noindex">
+<title>Thank You · Aapki Seat Confirmed · Mann Ki Gita</title>
+
+<!-- Meta Pixel Base Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1329997080186178');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel Code -->
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --maroon:#5c2216;--ink:#4a2f1e;--ink-soft:#6e4a2e;--cream:#fdf7ea;--card:#fffdf7;
+    --gold:#d99a2b;--gold-deep:#b9781a;--saffron:#e88a2a;--muted:#9a7c5f;--line:rgba(92,34,22,.12);
+    --serif:Georgia,'Times New Roman',Cambria,'Noto Serif',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+    --shadow:0 12px 34px rgba(92,34,22,.1);
+  }
+  body{font-family:var(--sans);color:var(--ink);line-height:1.6;font-size:17px;
+    background:radial-gradient(120% 80% at 50% -10%,rgba(232,138,42,.18),transparent 60%),var(--cream);
+    min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 18px 60px}
+  .card{width:100%;max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:22px;
+    box-shadow:var(--shadow);padding:34px 30px;text-align:center}
+  h1,h2,h3{font-family:var(--serif);color:var(--maroon);line-height:1.2}
+  .tick{width:74px;height:74px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color:#fff;font-size:2.2rem;display:grid;place-items:center;margin:0 auto 18px;box-shadow:0 12px 28px rgba(176,110,26,.4)}
+  h1{font-size:clamp(1.6rem,5vw,2.1rem)}
+  .sub{color:var(--ink-soft);margin:8px 0 4px}
+  .order{display:inline-block;margin-top:10px;background:rgba(232,138,42,.12);border:1px solid rgba(217,154,43,.4);
+    color:var(--gold-deep);border-radius:999px;padding:6px 14px;font-size:.82rem;font-weight:700}
+  .divider{height:1px;background:var(--line);margin:26px 0}
+  h2{font-size:1.2rem;text-align:left;margin-bottom:14px}
+  .steps{list-style:none;text-align:left;display:grid;gap:14px}
+  .steps li{display:flex;gap:14px;align-items:flex-start}
+  .steps .n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--maroon);color:#fff;
+    font-family:var(--serif);font-weight:700;display:grid;place-items:center;font-size:.95rem}
+  .steps b{color:var(--maroon)}
+  .steps p{margin:0;color:var(--ink-soft);font-size:.96rem}
+  .detail-row{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px dashed var(--line);text-align:left}
+  .detail-row:last-child{border-bottom:0}
+  .detail-row span{color:var(--muted)}
+  .detail-row b{color:var(--maroon);font-family:var(--serif)}
+  .btns{display:grid;gap:12px;margin-top:24px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;font-weight:700;
+    padding:15px 22px;border-radius:12px;font-size:1rem;cursor:pointer;border:none}
+  .btn-wa{background:#1faa53;color:#fff}
+  .btn-cal{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#fff}
+  .btn-ghost{background:transparent;color:var(--gold-deep);border:1.5px solid rgba(217,154,43,.5)}
+  .btn:hover{filter:brightness(1.04)}
+  .note{margin-top:18px;color:var(--muted);font-size:.85rem}
+  .brand{margin-top:26px;font-family:var(--serif);color:var(--maroon)}
+  .brand small{display:block;color:var(--gold-deep);font-size:.8rem;letter-spacing:.04em;margin-top:2px}
+  @media(max-width:480px){.card{padding:28px 20px}}
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="tick">✓</div>
+    <h1>Aapki Seat Confirmed! 🎉</h1>
+    <p class="sub">Payment successful. Dhanyavaad, <span id="firstName">aapka</span> swagat hai Mann Ki Gita mein.</p>
+    <div class="order" id="orderBadge" hidden>Order ID: <span id="orderId"></span></div>
+
+    <div class="divider"></div>
+
+    <h2>Aage kya hoga?</h2>
+    <ul class="steps">
+      <li><span class="n">1</span><div><b>Joining link aa raha hai</b><p>Aapke LIVE masterclass ka link aapke WhatsApp / SMS par bhej diya jayega. Kripya apna phone check karte rahiye.</p></div></li>
+      <li><span class="n">2</span><div><b>Date note kar lijiye</b><p>Masterclass <b id="tyDate1">16 August</b> ko LIVE hogi. Neeche button se apne calendar mein add kar lijiye taaki aap miss na karein.</p></div></li>
+      <li><span class="n">3</span><div><b>Reminder milega</b><p>Session se pehle aapko ek reminder message bheja jayega. Ek shaant jagah aur khula mann leke aaiye.</p></div></li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <div class="detail-row"><span>Masterclass</span><b>90-Minute LIVE</b></div>
+    <div class="detail-row"><span>Date</span><b id="tyDate2">16 August</b></div>
+    <div class="detail-row"><span>Language</span><b>Hindi / Hinglish</b></div>
+    <div class="detail-row"><span>Amount Paid</span><b id="amtPaid">₹99</b></div>
+
+    <div class="btns">
+      <!-- ▸ Replace with your real WhatsApp group / support link -->
+      <a class="btn btn-wa" id="waBtn" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">💬 Join on WhatsApp</a>
+      <a class="btn btn-cal" id="calBtn" href="#" target="_blank" rel="noopener">📅 Add to Google Calendar</a>
+      <a class="btn btn-ghost" href="index.html">← Back to home</a>
+    </div>
+
+    <p class="note" id="supportNote">Koi sawaal? Hamein WhatsApp par message kijiye. Aapke saath jald milte hain. 🙏</p>
+
+    <div class="brand">Mann Ki Gita<small>SAMAJHIYE · REFLECT KIJIYE · APPLY KIJIYE</small></div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- Defaults (used when no backend/admin settings are available) ---- */
+  var FRAPPE_BASE = "";                               // your Frappe origin, or "" if same origin
+  var CONTENT_ID = "mkg-workshop-99";
+  var CONTENT_NAME = "90-Minute Live Masterclass";
+  var CLASS_MINUTES = 90;
+  var DEFAULT_DATETIME = "2026-08-16T20:00:00+05:30";
+  var DEFAULT_WHATSAPP = "https://wa.me/91XXXXXXXXXX";
+
+  function qs(k){ try{ return new URLSearchParams(window.location.search).get(k)||""; }catch(e){ return ""; } }
+  var pid = qs("pid");
+  var amt = parseFloat(qs("amt")) || 99;
+  var nm  = qs("name");
+  var reg = qs("reg");
+  var dt  = qs("dt");
+
+  /* ---- Meta Purchase (fires on the thank-you page only; eventID = payment id -> dedup with CAPI) ---- */
+  try{
+    if(typeof fbq==="function"){
+      fbq("track","Purchase",{
+        content_name:CONTENT_NAME, content_ids:[CONTENT_ID], content_type:"product",
+        value:Number(amt).toFixed(2), currency:"INR", num_items:1
+      }, pid ? {eventID:pid} : undefined);
+    }
+  }catch(e){}
+
+  /* ---- Static bits from the URL ---- */
+  if(nm){ var f=document.getElementById("firstName"); if(f) f.textContent=nm.split(" ")[0]; }
+  if(pid){ var b=document.getElementById("orderBadge"), o=document.getElementById("orderId"); if(o){o.textContent=pid;} if(b){b.hidden=false;} }
+  var amtEl=document.getElementById("amtPaid"); if(amtEl) amtEl.textContent="₹"+amt;
+
+  /* ---- Dynamic bits (date / whatsapp / calendar) ---- */
+  function pad(n){ return (n<10?"0":"")+n; }
+  function fmt(d){ return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+"00Z"; }
+  function setWhatsapp(link){ var wa=document.getElementById("waBtn"); if(wa && link) wa.href=link; }
+  function setDateLabel(label){ if(!label) return; ["tyDate1","tyDate2"].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=label; }); }
+  function setCalendar(dt){
+    try{
+      var start=new Date(dt); if(isNaN(start)) return;
+      var end=new Date(start.getTime()+CLASS_MINUTES*60000);
+      var url="https://calendar.google.com/calendar/render?action=TEMPLATE"
+        +"&text="+encodeURIComponent("Mann Ki Gita - 90-Minute LIVE Masterclass")
+        +"&dates="+fmt(start)+"/"+fmt(end)
+        +"&details="+encodeURIComponent("Aapka joining link WhatsApp/SMS par bheja jayega.");
+      var cal=document.getElementById("calBtn"); if(cal) cal.href=url;
+    }catch(e){}
+  }
+
+  // Apply defaults first so the page works even with no backend
+  setWhatsapp(DEFAULT_WHATSAPP);
+  setCalendar(DEFAULT_DATETIME);
+
+  // Then override with live settings from the Frappe app if available
+  fetch(FRAPPE_BASE+"/api/method/mann_ki_gita.api.get_settings").then(function(r){return r.json();}).then(function(res){
+    var s=res&&res.message; if(!s||!s.ok) return;
+    setDateLabel(s.date_label);
+    if(s.whatsapp_link) setWhatsapp(s.whatsapp_link);
+    if(s.class_datetime) setCalendar(s.class_datetime);
+    if(s.price_inr && !qs("amt")){ var a=document.getElementById("amtPaid"); if(a) a.textContent="₹"+Math.round(s.price_inr); }
+    if(s.support_note){ var sn=document.getElementById("supportNote"); if(sn) sn.textContent=s.support_note; }
+  }).catch(function(){});
+
+  // Track the WhatsApp-link click (honest proxy) when we know which lead this is
+  var waEl=document.getElementById("waBtn");
+  if(waEl && reg && dt){
+    waEl.addEventListener("click",function(){
+      try{ fetch(FRAPPE_BASE+"/api/method/mann_ki_gita.api.wa_click",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({reg:reg, dt:dt})
+      }); }catch(e){}
+    });
+  }
+})();
+</script>
+</body>
+</html>
