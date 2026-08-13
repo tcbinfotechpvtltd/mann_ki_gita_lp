@@ -32,6 +32,9 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 
+<!-- Preload Razorpay Checkout so it's ready at submit time (more reliable on mobile) -->
+<script async src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <style>
   /* ===== Reset / base - system fonts only, zero external requests ===== */
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -880,11 +883,13 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 
     if(CONFIG.hasBackend){
       /* Production: save ERPNext lead + create order server-side, then verify after payment */
-      frappeCall("create_order",{full_name:name, mobile:phone, utm:utmString()})
-        .then(function(reg){
-          return openCheckout(name,phone,{ keyId:reg.key_id||CONFIG.razorpayKeyId, amount:reg.amount, orderId:reg.order_id, reg:reg.reg, dt:reg.dt, verify:true });
-        })
-        .catch(function(){ setPhase("form"); showErr("Abhi registration shuru nahi ho payi. Thodi der baad try kijiye."); });
+      frappeCall("create_order",{full_name:name, mobile:phone, utm:utmString()}).then(
+        function(reg){
+          return openCheckout(name,phone,{ keyId:reg.key_id||CONFIG.razorpayKeyId, amount:reg.amount, orderId:reg.order_id, reg:reg.reg, dt:reg.dt, verify:true })
+            .catch(function(){ setPhase("form"); showErr("Payment window load nahi ho payi. Kripya internet check karke, ya doosre browser / incognito window mein try kijiye."); });
+        },
+        function(){ setPhase("form"); showErr("Abhi registration shuru nahi ho payi. Thodi der baad try kijiye."); }
+      );
     } else {
       /* Preview: open the real Razorpay screen with your test key (no backend, not verified) */
       openCheckout(name,phone,{ keyId:CONFIG.razorpayKeyId, amount:PRICE_VALUE*100, verify:false })
