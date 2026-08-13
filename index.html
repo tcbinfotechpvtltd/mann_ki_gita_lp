@@ -393,7 +393,6 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
           <div><b>Hinglish</b>Language</div>
           <div><b>₹<span class="js-price">99</span></b>Investment</div>
         </div>
-        <p class="photo-note">▸ Replace this card with your teacher-led creative / hero image</p>
       </aside>
     </div>
   </div>
@@ -402,11 +401,10 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 <!-- ============ TRUST BAR ============ -->
 <div class="trustbar">
   <div class="wrap">
-    <div class="ti"><span class="star">★★★★★</span> <b>[ 4.8 ]</b> average rating</div>
-    <div class="ti"><b>[ 2,000+ ]</b> learners guided</div>
+    <div class="ti" id="tiRating" hidden><span class="star">★★★★★</span> <b id="ratingVal"></b> average rating</div>
+    <div class="ti" id="tiLearners" hidden><b id="learnersVal"></b></div>
     <div class="ti">🟢 <b>LIVE</b> · not recorded</div>
     <div class="ti">🌿 Beginners welcome</div>
-    <div class="edit">▸ Replace bracketed numbers with your real, verified figures</div>
   </div>
 </div>
 
@@ -517,11 +515,11 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 </section>
 
 <!-- ============ SOCIAL PROOF ============ -->
-<section class="proof">
+<section class="proof" id="proofSection" hidden>
   <div class="wrap center">
     <span class="eyebrow">In Their Words</span>
     <h2 class="reveal">Log Kya Kehte Hain</h2>
-    <p class="lead center reveal" id="proofNote">▸ Replace the three quotes below with real attendee feedback (first name + city is enough). Never use invented testimonials.</p>
+    <p class="lead center reveal" id="proofNote" hidden></p>
     <div class="quotes" id="quotesWrap">
       <div class="quote reveal">
         <div class="qm">“</div><div class="stars">★★★★★</div>
@@ -548,7 +546,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     <div class="center"><span class="eyebrow">Your Guide</span></div>
     <h2 class="center reveal">Bhagavad Gita Ko Samajhne Ka Ek Practical Approach</h2>
     <div class="teacher-grid">
-      <div class="teacher-photo reveal" id="teacherPhoto"><span>▸ Add teacher photo here<br>(real image, no invented credentials)</span></div>
+      <div class="teacher-photo reveal" id="teacherPhoto"></div>
       <div class="reveal">
         <h3 id="teacherName">[ Teacher Name ]</h3>
         <p id="teacherBio" style="color:var(--ink-soft);margin-top:8px">
@@ -556,7 +554,6 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
                Bhagavad Gita / spiritual learning background, and why Mann Ki Gita was created. -->
           [ Relevant experience • Teaching experience • Bhagavad Gita / spiritual learning background ]
         </p>
-        <p style="color:var(--ink-soft)">[ Why Mann Ki Gita was created - in your own words. ]</p>
         <blockquote>"Mann Ki Gita ka purpose Bhagavad Gita ko complicated banana nahi, balki uski wisdom ko everyday life ke questions se connect karna hai."</blockquote>
       </div>
     </div>
@@ -969,16 +966,26 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     if(s.show_countdown===false){ var cw=document.getElementById("countdownWrap"); if(cw) cw.style.display="none"; }
     if(s.seats_filled_percent){ var sf=document.getElementById("seatFill"); if(sf) sf.style.width=Math.max(0,Math.min(100,s.seats_filled_percent))+"%"; }
     if(s.seats_text){ var st=document.getElementById("seatsText"); if(st) st.textContent=s.seats_text; }
+    if(s.rating){ var rv=document.getElementById("ratingVal"), tr=document.getElementById("tiRating"); if(rv) rv.textContent=s.rating; if(tr) tr.hidden=false; }
+    if(s.learners_text){ var lv=document.getElementById("learnersVal"), tl=document.getElementById("tiLearners"); if(lv) lv.textContent=s.learners_text; if(tl) tl.hidden=false; }
     if(s.teacher_name){ var tn=document.getElementById("teacherName"); if(tn) tn.textContent=s.teacher_name; }
     if(s.teacher_bio){ var tb=document.getElementById("teacherBio"); if(tb) tb.textContent=s.teacher_bio; }
-    if(s.teacher_photo_url){
-      var tp=document.getElementById("teacherPhoto");
-      if(tp){ tp.innerHTML=""; var im=document.createElement("img");
+    var tp=document.getElementById("teacherPhoto");
+    if(tp){
+      if(s.teacher_photo_url){
+        tp.innerHTML=""; var im=document.createElement("img");
         im.src=(s.teacher_photo_url.charAt(0)==="/"?(CONFIG.frappeBase||""):"")+s.teacher_photo_url;
         im.alt=s.teacher_name||"Teacher"; im.style.width="100%"; im.style.height="100%"; im.style.objectFit="cover";
-        tp.appendChild(im); }
+        tp.appendChild(im);
+      } else {
+        var ini=((s.teacher_name||"").charAt(0)||"॥").toUpperCase();
+        tp.innerHTML='<span style="font-family:var(--serif);font-size:4.5rem;color:var(--maroon)">'+esc(ini)+'</span>';
+      }
     }
-    if(s.testimonials) renderTestimonials(s.testimonials);
+    if(s.testimonials && s.testimonials.length){
+      var ps=document.getElementById("proofSection"); if(ps) ps.hidden=false;
+      renderTestimonials(s.testimonials);
+    }
   }
   function applySettings(){
     fetch((CONFIG.frappeBase||"")+"/api/method/mann_ki_gita.api.get_settings")
