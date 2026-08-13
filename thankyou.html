@@ -97,6 +97,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
       <!-- ▸ Replace with your real WhatsApp group / support link -->
       <a class="btn btn-wa" id="waBtn" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">💬 Join on WhatsApp</a>
       <a class="btn btn-cal" id="calBtn" href="#" target="_blank" rel="noopener">📅 Add to Google Calendar</a>
+      <a class="btn btn-ghost" id="icsBtn" href="#" download="mann-ki-gita.ics">🗓️ Add to Apple / Outlook (.ics)</a>
       <a class="btn btn-ghost" href="index.html">← Back to home</a>
     </div>
 
@@ -113,7 +114,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   var FRAPPE_BASE = "";                               // your Frappe origin, or "" if same origin
   var CONTENT_ID = "mkg-workshop-99";
   var CONTENT_NAME = "90-Minute Live Masterclass";
-  var CLASS_MINUTES = 90;
+  var DURATION = 90, MEETING_LINK = "", ICS_URL = "";
   var DEFAULT_DATETIME = "2026-08-16T20:00:00+05:30";
   var DEFAULT_WHATSAPP = "https://wa.me/91XXXXXXXXXX";
 
@@ -144,28 +145,50 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   function fmt(d){ return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+"00Z"; }
   function setWhatsapp(link){ var wa=document.getElementById("waBtn"); if(wa && link) wa.href=link; }
   function setDateLabel(label){ if(!label) return; ["tyDate1","tyDate2"].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=label; }); }
-  function setCalendar(dt){
+  function buildCalendar(dtStr){
     try{
-      var start=new Date(dt); if(isNaN(start)) return;
-      var end=new Date(start.getTime()+CLASS_MINUTES*60000);
-      var url="https://calendar.google.com/calendar/render?action=TEMPLATE"
-        +"&text="+encodeURIComponent("Mann Ki Gita - 90-Minute LIVE Masterclass")
-        +"&dates="+fmt(start)+"/"+fmt(end)
-        +"&details="+encodeURIComponent("Aapka joining link WhatsApp/SMS par bheja jayega.");
-      var cal=document.getElementById("calBtn"); if(cal) cal.href=url;
+      var start=new Date(dtStr); if(isNaN(start)) return;
+      var end=new Date(start.getTime()+(DURATION||90)*60000);
+      var title="Mann Ki Gita - "+(DURATION||90)+"-Minute LIVE Masterclass";
+      var details=MEETING_LINK ? ("Joining link: "+MEETING_LINK) : "Aapka joining link WhatsApp/SMS par bheja jayega.";
+      var cal=document.getElementById("calBtn");
+      if(cal){
+        cal.href="https://calendar.google.com/calendar/render?action=TEMPLATE"
+          +"&text="+encodeURIComponent(title)
+          +"&dates="+fmt(start)+"/"+fmt(end)
+          +"&details="+encodeURIComponent(details)
+          +(MEETING_LINK?("&location="+encodeURIComponent(MEETING_LINK)):"");
+      }
+      var ics=document.getElementById("icsBtn");
+      if(ics){
+        if(ICS_URL){
+          ics.href=(ICS_URL.charAt(0)==="/"?(FRAPPE_BASE||""):"")+ICS_URL; ics.removeAttribute("download");
+        } else {
+          var esc=function(t){ return String(t).replace(/\\/g,"\\\\").replace(/,/g,"\\,").replace(/;/g,"\\;").replace(/\n/g,"\\n"); };
+          var body=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Mann Ki Gita//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+            "UID:mkg-"+start.getTime()+"@mannkigita.com","DTSTAMP:"+fmt(start),"DTSTART:"+fmt(start),"DTEND:"+fmt(end),
+            "SUMMARY:"+esc(title),"DESCRIPTION:"+esc(details),"LOCATION:"+esc(MEETING_LINK||"Online"),
+            "END:VEVENT","END:VCALENDAR"].join("\r\n");
+          ics.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(body);
+          ics.setAttribute("download","mann-ki-gita.ics");
+        }
+      }
     }catch(e){}
   }
 
   // Apply defaults first so the page works even with no backend
   setWhatsapp(DEFAULT_WHATSAPP);
-  setCalendar(DEFAULT_DATETIME);
+  buildCalendar(DEFAULT_DATETIME);
 
   // Then override with live settings from the Frappe app if available
   fetch(FRAPPE_BASE+"/api/method/mann_ki_gita.api.get_settings").then(function(r){return r.json();}).then(function(res){
     var s=res&&res.message; if(!s||!s.ok) return;
     setDateLabel(s.date_label);
     if(s.whatsapp_link) setWhatsapp(s.whatsapp_link);
-    if(s.class_datetime) setCalendar(s.class_datetime);
+    if(s.duration_minutes) DURATION=s.duration_minutes;
+    if(s.meeting_link) MEETING_LINK=s.meeting_link;
+    if(s.ics_file) ICS_URL=s.ics_file;
+    buildCalendar(s.class_datetime || DEFAULT_DATETIME);
     if(s.price_inr && !qs("amt")){ var a=document.getElementById("amtPaid"); if(a) a.textContent="₹"+Math.round(s.price_inr); }
     if(s.support_note){ var sn=document.getElementById("supportNote"); if(sn) sn.textContent=s.support_note; }
   }).catch(function(){});
