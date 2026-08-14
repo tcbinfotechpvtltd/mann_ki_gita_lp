@@ -752,6 +752,8 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   };
   var CLASS_DATETIME = "2026-08-16T20:00:00+05:30"; // countdown target (IST) - set your real class time
   var PRICE_VALUE = 99, CURRENCY = "INR";
+  var SUPPORT_WA = "";  // filled from settings; shown as a WhatsApp fallback if registration keeps failing
+  function waHref(v){ if(!v) return ""; if(/^https?:\/\//.test(v)) return v; var d=(""+v).replace(/\D/g,""); return d?("https://wa.me/"+(d.length===10?("91"+d):d)):""; }
 
   // Meta standard events use fbq('track', ...); everything else is a custom event.
   var STD_EVENTS={PageView:1,ViewContent:1,InitiateCheckout:1,Purchase:1,Lead:1,AddToCart:1,Search:1,CompleteRegistration:1,Contact:1};
@@ -796,7 +798,13 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     modal.classList.remove("open"); modal.setAttribute("aria-hidden","true");
     document.body.style.overflow=""; if(lastFocus&&lastFocus.focus) lastFocus.focus();
   }
-  function showErr(m){ if(errEl){ errEl.textContent=m; errEl.hidden=false; } }
+  function showErr(m, withWa){
+    if(!errEl) return;
+    var wa = withWa ? waHref(SUPPORT_WA) : "";
+    errEl.innerHTML = String(m).replace(/</g,"&lt;")
+      + (wa ? (' <a href="'+wa+'" target="_blank" rel="noopener" style="color:#a3231a;font-weight:800;text-decoration:underline">WhatsApp par help lein &rarr;</a>') : "");
+    errEl.hidden=false;
+  }
 
   if(modal){
     modal.addEventListener("click",function(e){ if(e.target===modal || (e.target.hasAttribute&&e.target.hasAttribute("data-close"))) closeModal(); });
@@ -813,11 +821,40 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     });
   }
   function frappeCall(method, body){
-    return fetch((CONFIG.frappeBase||"")+"/api/method/mann_ki_gita.api."+method,{
-      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body||{})
-    }).then(function(r){ return r.json().then(function(j){
-      var m=j.message; if(!r.ok||!m||!m.ok) throw new Error(j.exc||("HTTP "+r.status)); return m;
-    }); });
+    var url=(CONFIG.frappeBase||"")+"/api/method/mann_ki_gita.api."+method;
+    var ctrl=("AbortController" in window)?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ try{ctrl.abort();}catch(e){} },15000):null;
+    return fetch(url,{
+      method:"POST", credentials:"omit",   // never send session cookies -> always the Guest path
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify(body||{}),
+      signal:ctrl?ctrl.signal:undefined
+    }).then(function(r){
+      if(timer)clearTimeout(timer);
+      return r.text().then(function(txt){
+        var j={}; try{ j=JSON.parse(txt); }catch(_){}   // guard against 502/504 HTML pages
+        if(!r.ok || !j.message || !j.message.ok){
+          var e=new Error((j&&j.exc)||("HTTP "+r.status)); e.status=r.status; throw e;
+        }
+        return j.message;
+      });
+    }, function(){
+      if(timer)clearTimeout(timer);
+      var e=new Error("network"); e.status=0; throw e;  // fetch rejected (dropped/timeout)
+    });
+  }
+  // Retry ONLY transient failures (network/timeout = status 0, or 5xx). Never retry a 4xx
+  // (deterministic: bad input etc.). Backend endpoints are idempotent enough that a retried
+  // create_order at worst leaves a duplicate lead - far better than a lost sale.
+  function frappeCallRetry(method, body, tries, delay){
+    tries=tries||3; delay=delay||800;
+    return frappeCall(method, body).catch(function(err){
+      var transient=(err&&(err.status===0||err.status>=500));
+      if(tries>1 && transient){
+        return new Promise(function(res){ setTimeout(res, delay); })
+          .then(function(){ return frappeCallRetry(method, body, tries-1, Math.min(delay*2,4000)); });
+      }
+      throw err;
+    });
   }
   function onPaid(paymentId, buyerName, reg, dt){
     // Redirect to the thank-you page, which shows next steps AND fires the Meta Purchase
@@ -844,16 +881,19 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
         handler:function(resp){
           if(cfg.verify){
             setPhase("loading");
-            frappeCall("verify_payment",{
+            frappeCallRetry("verify_payment",{
               razorpay_order_id:resp.razorpay_order_id,
               razorpay_payment_id:resp.razorpay_payment_id,
               razorpay_signature:resp.razorpay_signature,
               reg:cfg.reg, dt:cfg.dt,
               fbp:getCookie("_fbp"), fbc:getCookie("_fbc")   // for Meta CAPI match quality
-            }).then(function(){ onPaid(resp.razorpay_payment_id, name, cfg.reg, cfg.dt); }).catch(function(){
-              setPhase("form");
-              showErr("Payment ho gaya, par confirm karne mein dikkat aayi. Hum aapse jald sampark karenge.");
-            });
+            }).then(function(){ onPaid(resp.razorpay_payment_id, name, cfg.reg, cfg.dt); })
+              .catch(function(){
+                // Payment SUCCEEDED on Razorpay; only our confirm call failed (network).
+                // The Razorpay webhook verifies server-side, so still take the buyer to the
+                // thank-you page rather than stranding them on an error.
+                onPaid(resp.razorpay_payment_id, name, cfg.reg, cfg.dt);
+              });
           } else {
             onPaid(resp.razorpay_payment_id, name);   // preview (no backend): payment shown, not verified
           }
@@ -887,12 +927,19 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 
     if(CONFIG.hasBackend){
       /* Production: save ERPNext lead + create order server-side, then verify after payment */
-      frappeCall("create_order",{full_name:name, mobile:phone, utm:utmString()}).then(
+      frappeCallRetry("create_order",{full_name:name, mobile:phone, utm:utmString()}).then(
         function(reg){
           return openCheckout(name,phone,{ keyId:reg.key_id||CONFIG.razorpayKeyId, amount:reg.amount, orderId:reg.order_id, reg:reg.reg, dt:reg.dt, verify:true })
-            .catch(function(){ setPhase("form"); showErr("Payment window load nahi ho payi. Kripya internet check karke, ya doosre browser / incognito window mein try kijiye."); });
+            .catch(function(){ setPhase("form"); showErr("Payment window load nahi ho payi. Ek baar phir button dabaiye, ya internet check karke doosre browser mein try kijiye.", true); });
         },
-        function(){ setPhase("form"); showErr("Abhi registration shuru nahi ho payi. Thodi der baad try kijiye."); }
+        function(err){
+          setPhase("form");
+          if(err && err.status===0){
+            showErr("Slow ya weak network ki wajah se registration complete nahi ho payi. Kripya ek baar phir 'RESERVE MY SEAT' button dabaiye.", true);
+          } else {
+            showErr("Registration abhi complete nahi ho payi. Kripya thodi der baad ya doosre browser mein try kijiye.", true);
+          }
+        }
       );
     } else {
       /* Preview: open the real Razorpay screen with your test key (no backend, not verified) */
@@ -1021,6 +1068,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
           var dv=document.getElementById("dateVal"); if(dv) dv.textContent=s.date_label+(s.time_label?(" · "+s.time_label):"");
         }
         if(s.price_inr) applyPrice(s.price_inr);
+        if(s.support_whatsapp) SUPPORT_WA=s.support_whatsapp; else if(s.whatsapp_link) SUPPORT_WA=s.whatsapp_link;
         if(s.vsl_video_id){ var yt=document.getElementById("ytSlot"); if(yt) yt.setAttribute("data-id", s.vsl_video_id); }
         applyContent(s);
       }).catch(function(){});
