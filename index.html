@@ -121,8 +121,11 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   .hero .subhead{font-size:1.14rem;color:var(--ink-soft);margin:18px 0 20px;max-width:44ch}
   .badge-live{display:inline-flex;align-items:center;gap:9px;background:rgba(232,138,42,.13);
     border:1px solid rgba(217,154,43,.5);color:var(--gold-deep);border-radius:999px;
-    padding:8px 15px;font-size:.8rem;font-weight:700;letter-spacing:.04em;margin-bottom:18px}
-  .badge-live .dot{width:8px;height:8px;border-radius:50%;background:#e5533c;box-shadow:0 0 0 0 rgba(229,83,60,.7);animation:pulse 1.8s infinite}
+    padding:9px 16px;font-size:.8rem;font-weight:700;letter-spacing:.04em;margin-bottom:18px;
+    max-width:100%;text-decoration:none;cursor:pointer;transition:background .2s,transform .15s,box-shadow .2s}
+  .badge-live:hover{background:rgba(232,138,42,.22);transform:translateY(-1px);box-shadow:0 6px 16px rgba(176,110,26,.18)}
+  .badge-live .badge-txt{text-align:center;line-height:1.35}
+  .badge-live .dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#e5533c;box-shadow:0 0 0 0 rgba(229,83,60,.7);animation:pulse 1.8s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(229,83,60,.6)}70%{box-shadow:0 0 0 9px rgba(229,83,60,0)}100%{box-shadow:0 0 0 0 rgba(229,83,60,0)}}
   .hero-offer{font-family:var(--serif);font-size:1.26rem;color:var(--maroon);margin:4px 0 8px}
   .hero-support{color:var(--ink-soft);font-size:1rem;max-width:42ch}
@@ -253,10 +256,10 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   .offer-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:6px;align-items:stretch}
   .details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;box-shadow:var(--shadow)}
   .details h3{margin-bottom:10px}
-  .details .drow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px dashed var(--line)}
+  .details .drow{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:13px 0;border-bottom:1px dashed var(--line)}
   .details .drow:last-child{border-bottom:0}
-  .details .drow span{color:var(--muted)}
-  .details .drow b{color:var(--maroon);font-family:var(--serif);font-size:1.05rem}
+  .details .drow span{color:var(--muted);flex:0 0 auto;white-space:nowrap}
+  .details .drow b{color:var(--maroon);font-family:var(--serif);font-size:1.05rem;text-align:right;min-width:0}
   .pricebox{background:linear-gradient(180deg,#7a3d1e,var(--maroon));color:#f4ecdd;border-radius:18px;padding:34px 30px;
     box-shadow:0 20px 46px rgba(92,34,22,.28);border:1px solid rgba(217,154,43,.4);text-align:center;display:flex;flex-direction:column;justify-content:center}
   .pricebox ul{list-style:none;text-align:left;max-width:300px;margin:0 auto 20px;display:grid;gap:10px}
@@ -355,7 +358,8 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     .sticky-cta{display:flex}
   }
   @media(max-width:420px){
-    .sticky-cta .st-txt span{display:none}
+    .sticky-cta .st-txt .st-sub{display:none}
+    .badge-live{font-size:.72rem;padding:8px 13px;letter-spacing:.03em}
     .countdown{gap:8px}.cd-unit{min-width:58px}
   }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}.reveal{opacity:1;transform:none}}
@@ -376,7 +380,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <span class="badge-live"><span class="dot"></span><span id="badgeDuration">90-MINUTE</span> LIVE MASTERCLASS · <span id="badgeDate">16 AUGUST</span></span>
+        <a href="#register" class="badge-live js-cta" data-cta="hero-badge"><span class="dot"></span><span class="badge-txt"><span id="badgeDuration">90-MINUTE</span> LIVE MASTERCLASS · <span id="badgeDate">16 AUGUST</span></span></a>
         <h1 id="heroHeadline">Kya Aapka Mann...<br>Aapki Baat Nahi Sunta?</h1>
         <p class="subhead" id="heroSub">Overthinking, stress aur bechaini ke beech... apne mann ko samajhne ki ek practical shuruaat.</p>
         <p class="hero-offer">Bhagavad Gita Ko Sirf Padhiye Nahi... <span class="accent">Samajhiye.</span></p>
@@ -614,7 +618,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
         <div class="drow"><span>Language</span><b>Hindi / Hinglish</b></div>
         <div class="drow"><span>Date</span><b id="dateVal">16 August</b></div>
         <!-- ▸ Add Time only when confirmed: <div class="drow"><span>Time</span><b>[TIME]</b></div> -->
-        <div class="drow"><span>Where</span><b>Joining link on WhatsApp / Email</b></div>
+        <div class="drow"><span>Where</span><b>Link on WhatsApp</b></div>
         <div class="drow"><span>Investment</span><b>₹<span class="js-price">99</span></b></div>
       </div>
       <div class="pricebox reveal">
@@ -693,7 +697,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
         </label>
         <button type="submit" class="cta lg" id="regSubmit">RESERVE MY SEAT · PAY ₹<span class="js-price">99</span> →</button>
       </form>
-      <p class="modal-trust">🔒 100% secure payment · Joining link WhatsApp / email par milega</p>
+      <p class="modal-trust">🔒 100% secure payment · Joining link WhatsApp par milega</p>
     </div>
 
     <!-- Phase 2: working -->
@@ -714,7 +718,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 
 <!-- ============ STICKY MOBILE CTA ============ -->
 <div class="sticky-cta" id="stickyCta">
-  <div class="st-txt"><b>₹<span class="js-price">99</span></b> <span>· <span id="stickyDuration">90-min</span> LIVE Masterclass</span></div>
+  <div class="st-txt"><b>₹<span class="js-price">99</span></b> <span class="st-sub">· <span id="stickyDuration">90-min</span> LIVE Masterclass</span></div>
   <a href="#register" class="cta js-cta" data-cta="sticky">Join LIVE →</a>
 </div>
 

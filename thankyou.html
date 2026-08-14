@@ -183,7 +183,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   // Then override with live settings from the Frappe app if available
   fetch(FRAPPE_BASE+"/api/method/mann_ki_gita.api.get_settings").then(function(r){return r.json();}).then(function(res){
     var s=res&&res.message; if(!s||!s.ok) return;
-    setDateLabel(s.date_label);
+    setDateLabel(s.date_label + (s.time_label ? (" · " + s.time_label) : ""));
     if(s.whatsapp_link) setWhatsapp(s.whatsapp_link);
     if(s.duration_minutes) DURATION=s.duration_minutes;
     if(s.meeting_link) MEETING_LINK=s.meeting_link;
