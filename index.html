@@ -327,6 +327,10 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   .phone-wrap input{border:0;box-shadow:none!important;margin:0;border-radius:0}
   .modal .cta{width:100%;margin-top:4px}
   .form-err{color:#a3231a;background:#fdeceb;border:1px solid #f2c4bf;border-radius:10px;padding:10px 12px;font-size:.88rem;margin:0 0 14px}
+  .form-err .err-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .form-err .err-retry{background:#a3231a;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:800;font-size:.9rem;cursor:pointer;font-family:var(--sans)}
+  .form-err .err-retry:hover{filter:brightness(1.08)}
+  .form-err .err-wa{color:#128c3e;font-weight:800;text-decoration:underline;font-size:.9rem}
   .modal-trust{text-align:center;color:var(--muted);font-size:.8rem;margin:12px 0 0}
   .modal [data-phase="loading"]{text-align:center;padding:34px 0}
   .spinner{width:44px;height:44px;border-radius:50%;border:4px solid rgba(217,154,43,.25);border-top-color:var(--gold-deep);
@@ -798,12 +802,29 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     modal.classList.remove("open"); modal.setAttribute("aria-hidden","true");
     document.body.style.overflow=""; if(lastFocus&&lastFocus.focus) lastFocus.focus();
   }
-  function showErr(m, withWa){
+  function showErr(m, opts){
     if(!errEl) return;
-    var wa = withWa ? waHref(SUPPORT_WA) : "";
-    errEl.innerHTML = String(m).replace(/</g,"&lt;")
-      + (wa ? (' <a href="'+wa+'" target="_blank" rel="noopener" style="color:#a3231a;font-weight:800;text-decoration:underline">WhatsApp par help lein &rarr;</a>') : "");
+    opts = (opts===true) ? {wa:true} : (opts||{});
+    errEl.innerHTML = "<span>"+String(m).replace(/</g,"&lt;")+"</span>";
     errEl.hidden=false;
+    var actions=[];
+    if(opts.retry){
+      var b=document.createElement("button");
+      b.type="button"; b.className="err-retry"; b.textContent="↻ Dobara try kijiye";
+      b.addEventListener("click", function(){ if(lastName&&lastPhone) runRegister(lastName,lastPhone); });
+      actions.push(b);
+    }
+    var wa=(opts.wa||opts.retry)?waHref(SUPPORT_WA):"";
+    if(wa){
+      var a=document.createElement("a");
+      a.href=wa; a.target="_blank"; a.rel="noopener"; a.className="err-wa"; a.textContent="WhatsApp par help lein →";
+      actions.push(a);
+    }
+    if(actions.length){
+      var row=document.createElement("div"); row.className="err-actions";
+      for(var i=0;i<actions.length;i++) row.appendChild(actions[i]);
+      errEl.appendChild(row);
+    }
   }
 
   if(modal){
@@ -900,7 +921,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
         },
         modal:{ ondismiss:function(){
           setPhase("form");
-          showErr("Payment adhoora reh gaya. Aapki seat abhi bhi reserve ki ja sakti hai. Dobara try kijiye.");
+          showErr("Payment adhoora reh gaya. Aapki seat abhi bhi reserve ki ja sakti hai.", {retry:true});
           track("PaymentAbandoned");
         }}
       };
@@ -912,16 +933,10 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     });
   }
 
-  if(form) form.addEventListener("submit",function(e){
-    e.preventDefault();
-    var name=form.elements["name"].value.trim();
-    var phone=form.elements["phone"].value.replace(/\D/g,"");
-    if(name.length<2) return showErr("Kripya apna naam likhiye.");
-    if(!/^[6-9]\d{9}$/.test(phone)) return showErr("Kripya sahi 10-digit mobile number daaliye.");
+  var lastName="", lastPhone="";
+  function runRegister(name, phone){
+    lastName=name; lastPhone=phone;
     if(errEl) errEl.hidden=true;
-    if(!CONFIG.razorpayKeyId){
-      return showErr("Setup: apni Razorpay Key ID (CONFIG.razorpayKeyId) add karein taaki payment screen khule.");
-    }
     track("Lead",{value:PRICE_VALUE,currency:CURRENCY});   // lead captured, fires BEFORE payment
     setPhase("loading");
 
@@ -930,22 +945,33 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
       frappeCallRetry("create_order",{full_name:name, mobile:phone, utm:utmString()}).then(
         function(reg){
           return openCheckout(name,phone,{ keyId:reg.key_id||CONFIG.razorpayKeyId, amount:reg.amount, orderId:reg.order_id, reg:reg.reg, dt:reg.dt, verify:true })
-            .catch(function(){ setPhase("form"); showErr("Payment window load nahi ho payi. Ek baar phir button dabaiye, ya internet check karke doosre browser mein try kijiye.", true); });
+            .catch(function(){ setPhase("form"); showErr("Payment window load nahi ho payi. Neeche button se dobara try kijiye.", {retry:true}); });
         },
         function(err){
           setPhase("form");
-          if(err && err.status===0){
-            showErr("Slow ya weak network ki wajah se registration complete nahi ho payi. Kripya ek baar phir 'RESERVE MY SEAT' button dabaiye.", true);
-          } else {
-            showErr("Registration abhi complete nahi ho payi. Kripya thodi der baad ya doosre browser mein try kijiye.", true);
-          }
+          var msg=(err && err.status===0)
+            ? "Slow ya weak network ki wajah se registration complete nahi ho payi."
+            : "Registration abhi complete nahi ho payi.";
+          showErr(msg, {retry:true});
         }
       );
     } else {
       /* Preview: open the real Razorpay screen with your test key (no backend, not verified) */
       openCheckout(name,phone,{ keyId:CONFIG.razorpayKeyId, amount:PRICE_VALUE*100, verify:false })
-        .catch(function(){ setPhase("form"); showErr("Payment screen load nahi ho payi. Thodi der baad try kijiye."); });
+        .catch(function(){ setPhase("form"); showErr("Payment screen load nahi ho payi. Dobara try kijiye.", {retry:true}); });
     }
+  }
+
+  if(form) form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var name=form.elements["name"].value.trim();
+    var phone=form.elements["phone"].value.replace(/\D/g,"");
+    if(name.length<2) return showErr("Kripya apna naam likhiye.");
+    if(!/^[6-9]\d{9}$/.test(phone)) return showErr("Kripya sahi 10-digit mobile number daaliye, jaise 98XXXXXXXX.");
+    if(!CONFIG.razorpayKeyId){
+      return showErr("Setup: apni Razorpay Key ID (CONFIG.razorpayKeyId) add karein taaki payment screen khule.");
+    }
+    runRegister(name, phone);
   });
 
   /* ---- FAQ accordion (accessible) ---- */
