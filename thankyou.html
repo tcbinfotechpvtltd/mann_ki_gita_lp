@@ -125,11 +125,20 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   var reg = qs("reg");
   var dt  = qs("dt");
 
-  /* ---- Meta Purchase (fires on the thank-you page only; eventID = payment id -> dedup with CAPI) ---- */
+  /* ---- Meta Purchase (fires on the thank-you page only; eventID = payment id -> dedup with CAPI) ----
+     Product split for the ascension funnel: the ₹99 workshop = mkg-workshop-99; anything priced
+     above it (the 4-Week Guided Journey) = mkg-4week. Keeps the buyer audiences + exclusions clean.
+     A dedicated ?product=mkg-4week in the thank-you URL overrides the price heuristic when built. */
+  function productFor(amount){
+    if(qs("product")==="mkg-4week" || Number(amount)>99)
+      return {ids:["mkg-4week"], name:"4-Week Guided Journey"};
+    return {ids:["mkg-workshop-99"], name:CONTENT_NAME};
+  }
   try{
     if(typeof fbq==="function"){
+      var prod=productFor(amt);
       fbq("track","Purchase",{
-        content_name:CONTENT_NAME, content_ids:[CONTENT_ID], content_type:"product",
+        content_name:prod.name, content_ids:prod.ids, content_type:"product",
         value:Number(amt).toFixed(2), currency:"INR", num_items:1
       }, pid ? {eventID:pid} : undefined);
     }
