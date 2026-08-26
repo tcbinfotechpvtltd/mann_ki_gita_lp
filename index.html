@@ -890,7 +890,6 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 
   function openCheckout(name, phone, cfg){
     return loadRazorpay().then(function(){
-      track("InitiateCheckout",{content_name:CONFIG.contentName,content_ids:[CONFIG.contentId],content_type:"product",num_items:1,value:PRICE_VALUE,currency:CURRENCY});
       var options={
         key: cfg.keyId, amount: cfg.amount, currency: CURRENCY,
         name: CONFIG.brand, description: CONFIG.productName,
@@ -938,6 +937,9 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     lastName=name; lastPhone=phone;
     if(errEl) errEl.hidden=true;
     track("Lead",{value:PRICE_VALUE,currency:CURRENCY});   // lead captured, fires BEFORE payment
+    // InitiateCheckout at the moment checkout is initiated - fires on EVERY path/attempt
+    // (main CTA, VSL CTA, sticky, badge, final), even if create_order is slow or retries.
+    track("InitiateCheckout",{content_name:CONFIG.contentName,content_ids:[CONFIG.contentId],content_type:"product",num_items:1,value:PRICE_VALUE,currency:CURRENCY});
     setPhase("loading");
 
     if(CONFIG.hasBackend){
@@ -1108,8 +1110,20 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   else{ var ro=new IntersectionObserver(function(en){en.forEach(function(x){ if(x.isIntersecting){x.target.classList.add("in");ro.unobserve(x.target);} });},{threshold:.12});
     for(var k2=0;k2<rev.length;k2++) ro.observe(rev[k2]); }
 
-  /* ---- ViewContent (PageView already fired by the base pixel in <head>) ---- */
-  track("ViewContent",{content_name:CONFIG.contentName,content_ids:[CONFIG.contentId],content_type:"product",value:PRICE_VALUE,currency:CURRENCY});
+  /* ---- ViewContent: fire on genuine ENGAGEMENT (offer/pricing section in view),
+         NOT on page load - so it carries a qualifying signal, not a duplicate of PageView. ---- */
+  (function(){
+    var fired=false;
+    function fireVC(){ if(fired) return; fired=true;
+      track("ViewContent",{content_name:CONFIG.contentName,content_ids:[CONFIG.contentId],content_type:"product",value:PRICE_VALUE,currency:CURRENCY}); }
+    var offer=document.getElementById("register");
+    if(offer && "IntersectionObserver" in window){
+      var vo=new IntersectionObserver(function(en){ if(en[0].isIntersecting){ fireVC(); vo.disconnect(); } },{threshold:.5});
+      vo.observe(offer);
+    } else {
+      setTimeout(fireVC, 12000);   // fallback: 12s on-page = engaged, still not an instant-load duplicate
+    }
+  })();
   var yr=document.getElementById("yr"); if(yr) yr.textContent=new Date().getFullYear();
 })();
 </script>
@@ -1117,11 +1131,12 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
 <!-- ============================================================
      META PIXEL is installed in <head> (ID 1329997080186178).
      Events wired automatically:
-       PageView (head) · ViewContent (load) · CTAClick / LeadFormOpen (custom)
-       Lead (on form submit) · InitiateCheckout (Razorpay opens)
+       PageView (head) · ViewContent (offer section scrolled into view) · CTAClick / LeadFormOpen (custom)
+       Lead + InitiateCheckout (on checkout initiation - every path) · content_ids on all
        Purchase (payment success, eventID = Razorpay payment id for CAPI dedup)
-       VSLStart · PaymentAbandoned · PaymentFailure (custom)
-     Server-side Conversions API Purchase fires from server.js (verify + webhook).
+       VSLStart (on click-to-play) · PaymentAbandoned · PaymentFailure (custom)
+     Server-side Conversions API Purchase fires from Frappe api.py (verify_payment + webhook),
+     deduped with the browser Purchase via event_id = Razorpay payment id. Needs meta_capi_token.
 ============================================================ -->
 
 </body>
