@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <meta name="theme-color" content="#5c2216">
 <title>Mann Ki Gita - 90-Minute LIVE Masterclass | ₹99</title>
 <meta name="description" content="Bhagavad Gita ko sirf padhiye nahi... samajhiye. Overthinking, stress aur bechaini ke beech apne mann ko samajhne ki ek practical shuruaat. 90-minute LIVE Masterclass - INR 99.">
@@ -226,10 +226,16 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   .quote .stars{color:var(--gold);font-size:.9rem;margin-bottom:4px}
 
   /* ===== Teacher ===== */
-  .teacher-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center;margin-top:20px}
-  .teacher-photo{background:linear-gradient(180deg,#f3e2c2,#ead2a6);border:1px solid var(--line);border-radius:20px;
-    aspect-ratio:4/5;display:grid;place-items:center;color:#a3855f;text-align:center;padding:20px;box-shadow:var(--shadow)}
-  .teacher-photo span{font-size:.8rem;line-height:1.5}
+  .teacher-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:44px;align-items:center;margin-top:24px}
+  .teacher-photo{position:relative;background:linear-gradient(180deg,#f3e2c2,#ead2a6);border-radius:22px;
+    aspect-ratio:4/5;display:grid;place-items:center;color:#a3855f;text-align:center;overflow:hidden;
+    box-shadow:0 20px 46px rgba(92,34,22,.24);outline:3px solid rgba(217,154,43,.4);outline-offset:5px}
+  .teacher-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .teacher-photo span{font-size:.8rem;line-height:1.5;padding:20px}
+  .teacher-name{color:var(--maroon);font-size:1.75rem;margin:0}
+  .teacher-role{display:inline-block;color:var(--gold-deep);font-weight:700;font-size:.92rem;letter-spacing:.02em;
+    background:rgba(217,154,43,.14);border:1px solid rgba(217,154,43,.4);border-radius:999px;padding:4px 12px;margin:8px 0 14px}
+  .teacher-bio{color:var(--ink-soft);font-size:1.04rem;line-height:1.62}
   .teacher blockquote{font-family:var(--serif);font-size:1.2rem;color:var(--maroon);border-left:3px solid var(--gold);padding-left:18px;margin:22px 0 0;line-height:1.5}
 
   /* ===== Method ===== */
@@ -563,8 +569,9 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     <div class="teacher-grid">
       <div class="teacher-photo reveal" id="teacherPhoto"></div>
       <div class="reveal">
-        <h3 id="teacherName">[ Teacher Name ]</h3>
-        <p id="teacherBio" style="color:var(--ink-soft);margin-top:8px">
+        <h3 class="teacher-name" id="teacherName">[ Teacher Name ]</h3>
+        <p class="teacher-role">🪷 Aapki Guide · Mann Ki Gita</p>
+        <p class="teacher-bio" id="teacherBio">
           <!-- ▸ Fill ONLY verified details: relevant experience, teaching background,
                Bhagavad Gita / spiritual learning background, and why Mann Ki Gita was created. -->
           [ Relevant experience • Teaching experience • Bhagavad Gita / spiritual learning background ]
@@ -635,7 +642,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
         </ul>
         <div class="big">₹<span class="js-price">99</span> <small>only</small></div>
         <div class="entry">Entry price · one-time · no hidden charges</div>
-        <a href="#" class="cta lg js-cta" data-cta="pricebox">RESERVE MY SEAT →</a>
+        <a href="#register" class="cta lg js-cta" data-cta="pricebox">RESERVE MY SEAT →</a>
         <span class="secure on-dark">🔒 Secure payment · Instant confirmation</span>
       </div>
     </div>
@@ -678,7 +685,7 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
   <div class="fb">Mann Ki Gita</div>
   <div class="tag">Samajhiye. Reflect Kijiye. Apply Kijiye.</div>
   <p class="fq">"Bhagavad Gita ki wisdom ko modern life se connect karne ki ek practical journey."</p>
-  <p class="legal">© <span id="yr"></span> Mann Ki Gita. All rights reserved. &nbsp;•&nbsp; <a href="#">Privacy</a> &nbsp;•&nbsp; <a href="#">Terms</a> &nbsp;•&nbsp; <a href="#">Refund Policy</a></p>
+  <p class="legal">© <span id="yr"></span> Mann Ki Gita. All rights reserved. &nbsp;•&nbsp; <a href="privacy.html">Privacy</a> &nbsp;•&nbsp; <a href="terms.html">Terms</a> &nbsp;•&nbsp; <a href="refund.html">Refund Policy</a></p>
 </footer>
 
 <!-- ============ REGISTRATION MODAL ============ -->
@@ -788,19 +795,49 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     var ps=modal.querySelectorAll("[data-phase]");
     for(var k=0;k<ps.length;k++){ ps[k].hidden = ps[k].getAttribute("data-phase")!==name; }
   }
+  // ---- Keep the bottom-sheet above the on-screen keyboard on mobile ----
+  // Without this, focusing the phone field slides the input + Pay button behind the
+  // keyboard and the buyer can't finish - the #1 reason phone registrations fail.
+  function fitModalToViewport(){
+    if(!modal || !modal.classList.contains("open")) return;
+    var vv=window.visualViewport, sheet=modal.querySelector(".modal");
+    if(vv){
+      modal.style.top=vv.offsetTop+"px"; modal.style.bottom="auto"; modal.style.height=vv.height+"px";
+      if(sheet) sheet.style.maxHeight=(vv.height-8)+"px";
+    }
+  }
+  function resetModalViewport(){
+    modal.style.top=""; modal.style.bottom=""; modal.style.height="";
+    var sheet=modal.querySelector(".modal"); if(sheet) sheet.style.maxHeight="";
+  }
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", fitModalToViewport);
+    window.visualViewport.addEventListener("scroll", fitModalToViewport);
+  }
+  if(modal){
+    var mInputs=modal.querySelectorAll("input");
+    for(var mi=0; mi<mInputs.length; mi++){
+      mInputs[mi].addEventListener("focus", function(){
+        var el=this;
+        setTimeout(function(){ fitModalToViewport(); try{ el.scrollIntoView({block:"center"}); }catch(e){} }, 300);
+      });
+    }
+  }
   function openModal(){
     if(!modal) return;
     lastFocus=document.activeElement;
     setPhase("form"); if(errEl) errEl.hidden=true; if(form) form.reset();
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false");
     document.body.style.overflow="hidden";
+    fitModalToViewport();
     track("LeadFormOpen");
     var f=modal.querySelector("input[name=name]"); if(f) setTimeout(function(){f.focus();},60);
   }
   function closeModal(){
     if(!modal) return;
     modal.classList.remove("open"); modal.setAttribute("aria-hidden","true");
-    document.body.style.overflow=""; if(lastFocus&&lastFocus.focus) lastFocus.focus();
+    document.body.style.overflow=""; resetModalViewport();
+    if(lastFocus&&lastFocus.focus) lastFocus.focus();
   }
   function showErr(m, opts){
     if(!errEl) return;
@@ -990,19 +1027,37 @@ src="https://www.facebook.com/tr?id=1329997080186178&ev=PageView&noscript=1"/></
     new IntersectionObserver(function(e){sticky.classList.toggle("show",!e[0].isIntersecting);},{threshold:0}).observe(hero);
   }
 
-  /* ---- VSL: tap poster -> inject YouTube player (loads only on click) ---- */
+  /* ---- VSL: tap poster -> YouTube IFrame API player (loads only on click).
+         VSLStart fires on the ACTUAL play event (state=PLAYING), not on click, so it
+         measures real plays; VSLComplete fires when the video ends. ---- */
   var poster=document.getElementById("vslPoster"), ytSlot=document.getElementById("ytSlot");
+  var ytPlayer=null, vslStarted=false;
+  function loadYTApi(cb){
+    if(window.YT && window.YT.Player) return cb();
+    var prev=window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady=function(){ if(typeof prev==="function"){try{prev();}catch(e){}} cb(); };
+    if(!document.getElementById("yt-iframe-api")){
+      var s=document.createElement("script"); s.id="yt-iframe-api"; s.src="https://www.youtube.com/iframe_api";
+      document.head.appendChild(s);
+    }
+  }
   function playVSL(){
-    if(!ytSlot || ytSlot.querySelector("iframe")) return;
+    if(!ytSlot || ytSlot.querySelector("iframe") || ytSlot.querySelector("#ytPlayerHost")) return;
     var id=ytSlot.getAttribute("data-id");
-    var f=document.createElement("iframe");
-    f.setAttribute("title","Mann Ki Gita - Masterclass");
-    f.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
-    f.setAttribute("allowfullscreen","");
-    f.src="https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1&playsinline=1";
-    ytSlot.appendChild(f);
+    var host=document.createElement("div"); host.id="ytPlayerHost"; ytSlot.appendChild(host);
     if(poster) poster.classList.add("hidden");
-    track("VSLStart");
+    loadYTApi(function(){
+      ytPlayer=new YT.Player("ytPlayerHost",{
+        videoId:id,
+        playerVars:{autoplay:1,rel:0,modestbranding:1,playsinline:1},
+        events:{
+          onStateChange:function(e){
+            if(e.data===YT.PlayerState.PLAYING && !vslStarted){ vslStarted=true; track("VSLStart"); }
+            if(e.data===YT.PlayerState.ENDED){ track("VSLComplete"); }
+          }
+        }
+      });
+    });
   }
   if(poster){
     poster.addEventListener("click",playVSL);
